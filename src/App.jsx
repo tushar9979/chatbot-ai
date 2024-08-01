@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css";
 
 function App() {
@@ -15,6 +15,16 @@ function App() {
     { name: "wg", value: 4 },
     { name: "gv", value: 5 },
   ];
+
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleGradeSelect = (grade) => {
     setSelectedGrade(grade);
@@ -51,7 +61,18 @@ function App() {
       timestamp,
     };
 
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    const loadingMessage = {
+      type: "answer",
+      content: "Loading...",
+      timestamp,
+      isLoading: true,
+    };
+
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      newMessage,
+      loadingMessage,
+    ]);
 
     try {
       const response = await fetch(
@@ -79,15 +100,22 @@ function App() {
       const data = await response.json();
       const chatbotAnswer = data.chat_bot_answer.answer;
 
-      const answerMessage = {
-        type: "answer",
-        content: chatbotAnswer,
-        timestamp,
-      };
-
-      setMessages((prevMessages) => [...prevMessages, answerMessage]);
+      setMessages((prevMessages) =>
+        prevMessages.map((msg, idx) =>
+          idx === prevMessages.length - 1
+            ? { ...msg, content: chatbotAnswer, isLoading: false }
+            : msg
+        )
+      );
     } catch (error) {
       console.error("Failed to fetch chatbot answer:", error);
+      setMessages((prevMessages) =>
+        prevMessages.map((msg, idx) =>
+          idx === prevMessages.length - 1
+            ? { ...msg, content: "Failed to load response", isLoading: false }
+            : msg
+        )
+      );
     }
   };
 
@@ -177,12 +205,11 @@ function App() {
               </div>
             </div>
 
-            <p class="text-lg font-semibold text-gray-700 bg-blue-50 p-4 rounded shadow-md">
+            <p className="text-lg font-semibold text-gray-700 bg-blue-50 p-4 rounded shadow-md">
               You must select the grade and series to proceed.
             </p>
           </div>
           <div className="w-full h-full flex flex-col justify-between">
-            {/* Chat to start writing, learning and more with GenAI */}
             <div
               className="flex flex-col mt-5 overflow-y-auto"
               style={{ height: "calc(100vh - 150px)" }}
@@ -197,7 +224,7 @@ function App() {
                   } mb-4`}
                 >
                   <div className="object-cover h-8 w-8 rounded-full">
-                    {message.type === "question" ? "You" : "Boat"}
+                    {message.type === "question" ? "You" : "Bot"}
                   </div>
                   <div
                     className={`ml-2 py-3 px-4 ${
@@ -207,18 +234,20 @@ function App() {
                     }`}
                   >
                     {message.content}
+                    {message.isLoading && <div className="loader ml-2"></div>}
                     <div className="text-xs text-gray-500 mt-1">
                       {message.timestamp}
                     </div>
                   </div>
                 </div>
               ))}
+              <div ref={messagesEndRef} />
             </div>
             <div className="py-3 sticky bottom-0 w-full bg-white">
               <input
                 className="w-full bg-gray-300 py-5 px-3 rounded-xl"
                 type="text"
-                placeholder="Enter a prompt for Gemini"
+                placeholder="Enter a prompt for GenAi"
                 value={inputValue}
                 onChange={handleInputChange}
                 onKeyDown={handleInputSubmit}
