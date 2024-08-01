@@ -8,6 +8,13 @@ function App() {
   const [seriesDropdownOpen, setSeriesDropdownOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
+  const seriesArray = [
+    { name: "we", value: 1 },
+    { name: "ew", value: 2 },
+    { name: "et", value: 3 },
+    { name: "wg", value: 4 },
+    { name: "gv", value: 5 },
+  ];
 
   const handleGradeSelect = (grade) => {
     setSelectedGrade(grade);
@@ -32,16 +39,21 @@ function App() {
   };
 
   const handleInputSubmit = async (e) => {
-    if (e.key === "Enter") {
-      const question = inputValue;
-      const newMessage = {
-        type: "question",
-        content: question,
-        timestamp: new Date().toLocaleTimeString(),
-      };
+    if (e.key !== "Enter") return;
 
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    const question = inputValue;
+    setInputValue("");
+    const timestamp = new Date().toLocaleTimeString();
 
+    const newMessage = {
+      type: "question",
+      content: question,
+      timestamp,
+    };
+
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    try {
       const response = await fetch(
         "https://el-chatbot-fastapi-logger-4vxxvkhypq-el.a.run.app/api/v1/get_chatbot_answer/",
         {
@@ -53,12 +65,16 @@ function App() {
             query: question,
             s_mode: 1,
             uid: 199111,
-            grade: selectedGrade,
+            grade: selectedGrade ? selectedGrade : "1",
             name: "Tushar",
-            series: selectedSeries,
+            series: selectedSeries ? selectedSeries : 1,
           }),
         }
       );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
 
       const data = await response.json();
       const chatbotAnswer = data.chat_bot_answer.answer;
@@ -66,11 +82,12 @@ function App() {
       const answerMessage = {
         type: "answer",
         content: chatbotAnswer,
-        timestamp: new Date().toLocaleTimeString(),
+        timestamp,
       };
 
       setMessages((prevMessages) => [...prevMessages, answerMessage]);
-      setInputValue("");
+    } catch (error) {
+      console.error("Failed to fetch chatbot answer:", error);
     }
   };
 
@@ -78,14 +95,17 @@ function App() {
     <div className="App">
       <div className="container mx-auto shadow-lg rounded-lg">
         <div className="px-5 py-5 flex justify-between items-center bg-white border-b-2">
-          <div className="font-semibold text-2xl">GenAi</div>
+          <div className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+            GenAi
+          </div>
+
           <div className="w-1/2"></div>
           <div className="h-12 w-12 p-2 bg-yellow-500 rounded-full text-white font-semibold flex items-center justify-center">
             TS
           </div>
         </div>
         <div className="flex flex-row justify-between bg-white">
-          <div className="flex flex-col w-2/5 border-r-2 overflow-y-auto">
+          <div className="flex flex-col w-1/5 border-r-2 overflow-y-auto">
             <div className="flex flex-row py-4 px-2 items-center border-b-2">
               <div className="relative inline-block text-left">
                 <button
@@ -141,13 +161,13 @@ function App() {
                       className="py-2 text-sm text-gray-700 dark:text-gray-200"
                       aria-labelledby="dropdownSeriesButton"
                     >
-                      {[1, 2, 3, 4, 5].map((series) => (
-                        <li key={series}>
+                      {seriesArray.map((series) => (
+                        <li key={series.value}>
                           <button
-                            onClick={() => handleSeriesSelect(series)}
+                            onClick={() => handleSeriesSelect(series.value)}
                             className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                           >
-                            Series {series}
+                            {series.name} {series.value}
                           </button>
                         </li>
                       ))}
@@ -156,10 +176,18 @@ function App() {
                 )}
               </div>
             </div>
+
+            <p class="text-lg font-semibold text-gray-700 bg-blue-50 p-4 rounded shadow-md">
+              You must select the grade and series to proceed.
+            </p>
           </div>
-          <div className="w-full px-5 flex flex-col justify-between">
-            <div className="flex flex-col mt-5">
-              {messages.map((message, index) => (
+          <div className="w-full h-full flex flex-col justify-between">
+            {/* Chat to start writing, learning and more with GenAI */}
+            <div
+              className="flex flex-col mt-5 overflow-y-auto"
+              style={{ height: "calc(100vh - 150px)" }}
+            >
+              {messages?.map((message, index) => (
                 <div
                   key={index}
                   className={`flex ${
@@ -186,18 +214,19 @@ function App() {
                 </div>
               ))}
             </div>
-            <div className="py-5">
+            <div className="py-3 sticky bottom-0 w-full bg-white">
               <input
                 className="w-full bg-gray-300 py-5 px-3 rounded-xl"
                 type="text"
-                placeholder="type your message here..."
+                placeholder="Enter a prompt for Gemini"
                 value={inputValue}
                 onChange={handleInputChange}
                 onKeyDown={handleInputSubmit}
               />
             </div>
           </div>
-          <div className="w-2/5 border-l-2 px-5"></div>
+
+          <div className="w-1/5 border-l-2 px-5"></div>
         </div>
       </div>
     </div>
