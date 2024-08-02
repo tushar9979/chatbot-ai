@@ -9,11 +9,11 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const seriesArray = [
-    { name: "we", value: 1 },
-    { name: "ew", value: 2 },
-    { name: "et", value: 3 },
-    { name: "wg", value: 4 },
-    { name: "gv", value: 5 },
+    { name: "Wow English", value: 1 },
+    { name: "English Weaves", value: 2 },
+    { name: "English Tree", value: 3 },
+    { name: "Wow Grammar", value: 4 },
+    { name: "Grammar Vibes", value: 5 },
   ];
 
   const messagesEndRef = useRef(null);
@@ -120,8 +120,8 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <div className="container mx-auto shadow-lg rounded-lg">
+    <div>
+      <div className="">
         <div className="px-5 py-5 flex justify-between items-center bg-white border-b-2">
           <div className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
             GenAi
