@@ -76,7 +76,7 @@ function App() {
 
     try {
       const response = await fetch(
-        "https://el-chatbot-fastapi-logger-4vxxvkhypq-el.a.run.app/api/v1/get_chatbot_answer/",
+        "https://el-chatbot-fastapi-logger-902243104917.asia-south1.run.app/api/v1/get_chatbot_answer/",
         {
           method: "POST",
           headers: {
