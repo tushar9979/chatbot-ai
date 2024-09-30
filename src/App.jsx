@@ -98,7 +98,10 @@ function App() {
       }
 
       const data = await response.json();
-      const chatbotAnswer = data.chat_bot_answer.answer;
+      const chatbotAnswer = data.chat_bot_answer.answer
+        ? data.chat_bot_answer.answer
+        : `The answer is not found: ${data.chat_bot_answer.reason}`;
+      console.log("chatbotAnswer", chatbotAnswer);
 
       setMessages((prevMessages) =>
         prevMessages.map((msg, idx) =>
