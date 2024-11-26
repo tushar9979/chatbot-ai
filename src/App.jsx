@@ -85,7 +85,7 @@ function App() {
           body: JSON.stringify({
             query: question,
             s_mode: 1,
-            uid: 546566,
+            uid: 778899,
             grade: selectedGrade ? selectedGrade : "1",
             name: "Tushar",
             series: selectedSeries ? selectedSeries : 1,
@@ -98,10 +98,25 @@ function App() {
       }
 
       const data = await response.json();
-      const chatbotAnswer = data.chat_bot_answer.answer
-        ? data.chat_bot_answer.answer
-        : `The answer is not found: ${data.chat_bot_answer.reason}`;
-      console.log("chatbotAnswer", chatbotAnswer);
+      // const chatbotAnswer = data?.chat_bot_answer?.answer
+      //   ? data?.chat_bot_answer?.answer
+      //   : `The answer is not found: ${data?.chat_bot_answer?.reason}`;
+      // console.log("chatbotAnswer", chatbotAnswer);
+
+      let chatbotAnswer;
+
+      if (
+        typeof data.chat_bot_answer === "object" &&
+        data.chat_bot_answer.answer
+      ) {
+        chatbotAnswer = data.chat_bot_answer.answer;
+      } else if (typeof data.chat_bot_answer === "string") {
+        chatbotAnswer = data.chat_bot_answer;
+      } else {
+        chatbotAnswer = "The answer is not available.";
+      }
+
+      console.log("chatbotAnswer:", chatbotAnswer);
 
       setMessages((prevMessages) =>
         prevMessages.map((msg, idx) =>
