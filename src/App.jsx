@@ -85,9 +85,9 @@ function App() {
           body: JSON.stringify({
             query: question,
             s_mode: 1,
-            uid: 998866,
+            uid: 745678,
             grade: selectedGrade ? selectedGrade : "1",
-            name: "Tushar_name",
+            name: "Tushar_n_name",
             series: selectedSeries ? selectedSeries : 1,
           }),
         }
